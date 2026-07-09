@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1080px; }
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #F4F7F8;
+    color: #1F2D35;
+}
+.card {
+    width: 1080px;
+    height: 1080px;
+    background: #F4F7F8;
+    padding: 76px 84px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.eyebrow {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.footer {
+    position: absolute;
+    left: 84px;
+    right: 84px;
+    bottom: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    color: #61717A;
+    font-weight: 600;
+    border-top: 1px solid #D9E4E8;
+    padding-top: 22px;
+}
+.icon-wrap {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-wrap svg { display: block; }
+
+
+.icon-wrap.c4 { width: 96px; height: 96px; background: #DCF0E9; color: #12876B; margin-bottom: 44px; }
+.hero-4 { font-family:'Inter', sans-serif; font-weight:800; font-size:168px; color:#12876B; line-height:1; letter-spacing:-0.02em; }
+.sub-4 { font-size:26px; color:#61717A; font-weight:600; margin-top:10px; }
+.title-4 { font-family:'Playfair Display', serif; font-weight:700; font-size:42px; line-height:1.25; margin-top:48px; max-width:840px; }
+.pulses-4 { margin-top: 56px; display:flex; flex-direction:column; gap:34px; }
+.pulse-block-4 label { font-size:24px; font-weight:700; color:#61717A; }
+
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="eyebrow" style="color:#12876B;">4 &middot; M&Aacute;S ALTIBAJOS</div>
+    <div class="icon-wrap c4"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 12 7 12 9.5 5 13.5 19 16 12 22 12"></polyline></svg></div>
+    <div style="display:flex; align-items:baseline;">
+        <div class="hero-4">+24%</div>
+    </div>
+    <div class="sub-4">m&aacute;s volatilidad a&ntilde;o a a&ntilde;o en el propio promedio</div>
+
+    <div class="title-4">El promedio tambi&eacute;n empez&oacute; a saltar m&aacute;s de un a&ntilde;o a otro.</div>
+
+    <div class="pulses-4">
+        <div class="pulse-block-4">
+            <label>1940&ndash;1982 &middot; desv. est&aacute;ndar 0,28</label>
+            <svg width="900" height="70" viewBox="0 0 900 70">
+                <polyline points="0,35 60,32 120,38 180,30 240,36 300,33 360,37 420,31 480,35 540,32 600,37 660,33 720,36 780,32 840,35 900,33"
+                    fill="none" stroke="#D9E4E8" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+        <div class="pulse-block-4">
+            <label style="color:#12876B;">1983&ndash;2025 &middot; desv. est&aacute;ndar 0,35</label>
+            <svg width="900" height="70" viewBox="0 0 900 70">
+                <polyline points="0,40 60,15 120,50 180,20 240,55 300,18 360,48 420,12 480,52 540,22 600,58 660,16 720,46 780,10 840,54 900,20"
+                    fill="none" stroke="#12876B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </div>
+    </div>
+    <div class="footer">
+        <span>PUERTO MONTT &middot; 1940&ndash;2025 &middot; ERA5 (Open-Meteo)</span>
+        <span>4 / 6</span>
+    </div>
+</div>
+
+</body>
+</html>

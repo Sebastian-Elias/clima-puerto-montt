@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1080px; }
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #F4F7F8;
+    color: #1F2D35;
+}
+.card {
+    width: 1080px;
+    height: 1080px;
+    background: #F4F7F8;
+    padding: 76px 84px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.eyebrow {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.footer {
+    position: absolute;
+    left: 84px;
+    right: 84px;
+    bottom: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    color: #61717A;
+    font-weight: 600;
+    border-top: 1px solid #D9E4E8;
+    padding-top: 22px;
+}
+.icon-wrap {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-wrap svg { display: block; }
+
+
+.icon-wrap.c5 { width: 96px; height: 96px; background: #F4E7CF; color: #B7791F; margin-bottom: 40px; }
+.title-5 { font-family:'Playfair Display', serif; font-weight:700; font-size:42px; line-height:1.25; max-width:860px; }
+.note-5 { font-size: 25px; color:#61717A; margin-top:20px; line-height:1.5; max-width: 780px; }
+.compare-5 { margin-top: 56px; display:flex; gap: 40px; }
+.col-5 { flex:1; background:#FFFFFF; border:1px solid #D9E4E8; border-radius:24px; padding:40px 34px; }
+.col-5 h4 { font-size: 22px; color:#61717A; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
+.col-5 .val { font-family:'Inter',sans-serif; font-weight:800; font-size: 68px; margin-top: 14px; }
+.col-5 .r { font-size: 22px; color:#61717A; margin-top: 10px; font-weight:600; }
+
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="eyebrow" style="color:#B7791F;">5 &middot; A PRUEBA DE OUTLIERS</div>
+    <div class="icon-wrap c5"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l7.5 3.3v5.6c0 4.9-3.2 8.2-7.5 9.6-4.3-1.4-7.5-4.7-7.5-9.6V5.8L12 2.5z"></path><polyline points="8.5 12.2 10.8 14.6 15.5 9.6"></polyline></svg></div>
+    <div class="title-5">El hallazgo no depende de un solo a&ntilde;o at&iacute;pico.</div>
+    <div class="note-5">1944 fue el a&ntilde;o m&aacute;s caluroso jam&aacute;s registrado (32,2&nbsp;°C) &mdash; y queda muy cerca del inicio de la serie (1940), f&aacute;cil de confundir a simple vista.</div>
+
+    <div class="compare-5">
+        <div class="col-5">
+            <h4>Con 1944 incluido</h4>
+            <div class="val" style="color:#1F2D35;">+0,39</div>
+            <div class="r">°C/d&eacute;cada &middot; r = 0,36</div>
+        </div>
+        <div class="col-5" style="border-color:#B7791F; background:#F4E7CF;">
+            <h4 style="color:#B7791F;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l7.5 3.3v5.6c0 4.9-3.2 8.2-7.5 9.6-4.3-1.4-7.5-4.7-7.5-9.6V5.8L12 2.5z"></path><polyline points="8.5 12.2 10.8 14.6 15.5 9.6"></polyline></svg> Sin 1944</h4>
+            <div class="val" style="color:#B7791F;">+0,44</div>
+            <div class="r" style="color:#B7791F;">°C/d&eacute;cada &middot; r = 0,42</div>
+        </div>
+    </div>
+    <div style="margin-top:28px; font-size:24px; font-weight:700; color:#1F2D35;">La tendencia no se debilita al sacarlo &mdash; se mantiene.</div>
+    <div class="footer">
+        <span>PUERTO MONTT &middot; 1940&ndash;2025 &middot; ERA5 (Open-Meteo)</span>
+        <span>5 / 6</span>
+    </div>
+</div>
+
+</body>
+</html>

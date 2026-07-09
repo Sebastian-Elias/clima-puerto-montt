@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1080px; }
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #F4F7F8;
+    color: #1F2D35;
+}
+.card {
+    width: 1080px;
+    height: 1080px;
+    background: #F4F7F8;
+    padding: 76px 84px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.eyebrow {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.footer {
+    position: absolute;
+    left: 84px;
+    right: 84px;
+    bottom: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    color: #61717A;
+    font-weight: 600;
+    border-top: 1px solid #D9E4E8;
+    padding-top: 22px;
+}
+.icon-wrap {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-wrap svg { display: block; }
+
+
+.hero-3 { font-family:'Inter', sans-serif; font-weight:800; font-size:190px; color:#D86A4A; line-height:1; letter-spacing:-0.02em; margin-top:8px; }
+.sub-3 { font-size:28px; color:#61717A; font-weight:600; margin-top:2px; }
+.title-3 { font-family:'Playfair Display', serif; font-weight:700; font-size:42px; line-height:1.25; margin-top:40px; max-width:860px; }
+.diverge-3 { margin-top: 64px; }
+.drow-3 { display:flex; align-items:center; height: 88px; }
+.dlabel-3 { width: 260px; display:flex; align-items:center; gap:14px; font-size:26px; font-weight:700; }
+.dtrack-3 { flex:1; position:relative; height: 36px; }
+.dcenter-3 { position:absolute; left:50%; top:-10px; bottom:-10px; width:2px; background:#61717A; opacity:0.4; }
+.dbar-3 { position:absolute; top:0; height:36px; border-radius:8px; }
+.dvalue-3 { width: 130px; text-align:right; font-size:28px; font-weight:800; }
+
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="eyebrow" style="color:#D86A4A;">3 &middot; NO ES PAREJO</div>
+    <div class="hero-3">4&times;</div>
+    <div class="sub-3">el calor avanza cuatro veces m&aacute;s r&aacute;pido de lo que retrocede el fr&iacute;o</div>
+
+    <div class="title-3">El cambio no es sim&eacute;trico: la se&ntilde;al viene sobre todo del lado c&aacute;lido.</div>
+
+    <div class="diverge-3">
+        <div class="drow-3">
+            <div class="dlabel-3" style="color:#D86A4A;"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.3"></circle><line x1="12" y1="2" x2="12" y2="4.6"></line><line x1="12" y1="19.4" x2="12" y2="22"></line><line x1="2" y1="12" x2="4.6" y2="12"></line><line x1="19.4" y1="12" x2="22" y2="12"></line><line x1="4.9" y1="4.9" x2="6.7" y2="6.7"></line><line x1="17.3" y1="17.3" x2="19.1" y2="19.1"></line><line x1="4.9" y1="19.1" x2="6.7" y2="17.3"></line><line x1="17.3" y1="6.7" x2="19.1" y2="4.9"></line></svg> M&aacute;xima anual</div>
+            <div class="dtrack-3">
+                <div class="dcenter-3"></div>
+                <div class="dbar-3" style="left:50%; width:31%; background:#D86A4A;"></div>
+            </div>
+            <div class="dvalue-3" style="color:#D86A4A;">+0,31</div>
+        </div>
+        <div class="drow-3">
+            <div class="dlabel-3" style="color:#2F6F9F;"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line><line x1="19.07" y1="4.93" x2="4.93" y2="19.07"></line></svg> M&iacute;nima anual</div>
+            <div class="dtrack-3">
+                <div class="dcenter-3"></div>
+                <div class="dbar-3" style="left:calc(50% - 8%); width:8%; background:#2F6F9F;"></div>
+            </div>
+            <div class="dvalue-3" style="color:#2F6F9F;">&minus;0,08</div>
+        </div>
+    </div>
+    <div style="margin-top:24px; font-size:22px; color:#61717A; font-weight:600;">°C por d&eacute;cada &middot; barras a la misma escala</div>
+    <div class="footer">
+        <span>PUERTO MONTT &middot; 1940&ndash;2025 &middot; ERA5 (Open-Meteo)</span>
+        <span>3 / 6</span>
+    </div>
+</div>
+
+</body>
+</html>

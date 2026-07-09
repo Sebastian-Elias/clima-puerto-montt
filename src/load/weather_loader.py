@@ -2,6 +2,7 @@ import logging
 
 import psycopg2
 from psycopg2.extras import execute_values
+from sqlalchemy import create_engine
 
 from config.settings import get_settings
 
@@ -38,6 +39,22 @@ def get_connection():
         password=settings.db_password,
         sslmode=settings.db_sslmode,
     )
+
+
+def get_engine():
+    """Engine de SQLAlchemy para lecturas con pandas (pd.read_sql).
+
+    psycopg2.connect() sigue siendo el camino para las cargas (execute_values),
+    pero pandas espera un engine/connection de SQLAlchemy y si no lo recibe
+    lanza un UserWarning en cada lectura.
+    """
+    settings = get_settings()
+    url = (
+        f"postgresql+psycopg2://{settings.db_user}:{settings.db_password}"
+        f"@{settings.db_host}:{settings.db_port}/{settings.db_name}"
+        f"?sslmode={settings.db_sslmode}"
+    )
+    return create_engine(url)
 
 
 def load_weather(registros):

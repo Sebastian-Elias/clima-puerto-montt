@@ -8,38 +8,40 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from load.weather_loader import get_connection
+from load.weather_loader import get_engine
 
 CIUDAD = "Puerto Montt"
 
-# --- Paleta "editorial cálida" ---------------------------------------------
-CANVAS = "#A6907C"        # taupe/marrón ceniza (fondo principal)
-CARD = "#FAF5E9"          # crema/beige (fondo de tarjetas)
-BORDER = "#E8DFCF"        # líneas y grillas, muy atenuadas
-TEXT_PRIMARY = "#2C241D"  # texto sobre tarjetas
-TEXT_MUTED = "#8B7B6B"    # texto secundario sobre tarjetas
-JADE = "#3F6C56"          # verde jade/pino — éxito, óptimo
-JADE_BG = "#E1EAE3"
-TERRACOTTA = "#C97C5D"    # salmón/terracota — alerta, calor
-TERRACOTTA_BG = "#F3DED2"
-MUSTARD = "#C99A44"       # ocre/mostaza — foco secundario
-MUSTARD_BG = "#F2E7D3"
+# Paleta limpia, inspirada en clima austral.
+CANVAS = "#F4F7F8"
+CARD = "#FFFFFF"
+BORDER = "#D9E4E8"
+TEXT_PRIMARY = "#1F2D35"
+TEXT_MUTED = "#61717A"
+BLUE = "#2F6F9F"
+BLUE_BG = "#E2EEF7"
+GREEN = "#2F7D69"
+GREEN_BG = "#E1F0EB"
+CORAL = "#D86A4A"
+CORAL_BG = "#F8E4DD"
+AMBER = "#B7791F"
+AMBER_BG = "#F4E7CF"
 
 FONT_SERIF = "Playfair Display, Georgia, serif"
-FONT_SANS = "Inter, -apple-system, sans-serif"
+FONT_SANS = "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
 
-ICON_TREND = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+ICON_TREND = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
     stroke-linecap="round" stroke-linejoin="round">
     <polyline points="3 17 9 11 13 15 21 6"></polyline>
     <polyline points="15 6 21 6 21 12"></polyline>
 </svg>"""
 
-ICON_FLAME = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+ICON_FLAME = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
     stroke-linecap="round" stroke-linejoin="round">
     <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
 </svg>"""
 
-ICON_SNOWFLAKE = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+ICON_SNOWFLAKE = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
     stroke-linecap="round" stroke-linejoin="round">
     <line x1="2" y1="12" x2="22" y2="12"></line>
     <line x1="12" y1="2" x2="12" y2="22"></line>
@@ -50,17 +52,14 @@ ICON_SNOWFLAKE = """<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 
 @st.cache_data(ttl=3600)
 def cargar_datos():
-    conn = get_connection()
-    try:
-        query = """
-            SELECT date, temperature_2m_max, temperature_2m_min, temperature_2m_mean
-            FROM weather_daily
-            WHERE city = %s
-            ORDER BY date;
-        """
-        df = pd.read_sql(query, conn, params=(CIUDAD,))
-    finally:
-        conn.close()
+    engine = get_engine()
+    query = """
+        SELECT date, temperature_2m_max, temperature_2m_min, temperature_2m_mean
+        FROM weather_daily
+        WHERE city = %(ciudad)s
+        ORDER BY date;
+    """
+    df = pd.read_sql(query, engine, params={"ciudad": CIUDAD})
 
     df["date"] = pd.to_datetime(df["date"])
     df["year"] = df["date"].dt.year
@@ -92,10 +91,46 @@ def calcular_promedio_decada(df):
     return resumen
 
 
-ALTURA_GRAFICO = 220
+def aplicar_layout_grafico(fig, titulo, altura):
+    fig.update_layout(
+        title=dict(text=titulo, x=0, font=dict(size=16, family=FONT_SERIF, color=TEXT_PRIMARY)),
+        plot_bgcolor=CARD,
+        paper_bgcolor=CARD,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(size=11, family=FONT_SANS, color=TEXT_MUTED),
+        ),
+        xaxis=dict(
+            showgrid=False,
+            color=TEXT_MUTED,
+            tickfont=dict(family=FONT_SANS, size=11, color=TEXT_PRIMARY),
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor=BORDER,
+            gridwidth=1,
+            color=TEXT_MUTED,
+            title="°C",
+            tickfont=dict(family=FONT_SANS, size=11, color=TEXT_PRIMARY),
+        ),
+        margin=dict(t=46, b=18, l=12, r=12),
+        height=altura,
+        font=dict(family=FONT_SANS, color=TEXT_PRIMARY),
+        hoverlabel=dict(
+            font=dict(family=FONT_SANS, color=TEXT_PRIMARY),
+            bgcolor=CARD,
+            bordercolor=BORDER,
+        ),
+    )
+    return fig
 
 
-def grafico_con_tendencia(anios, valores, color, nombre):
+def grafico_con_tendencia(anios, valores, color, nombre, altura=300):
     pendiente, intercepto = np.polyfit(anios, valores, 1)
     tendencia = pendiente * anios + intercepto
 
@@ -105,7 +140,7 @@ def grafico_con_tendencia(anios, valores, color, nombre):
             x=anios,
             y=valores,
             mode="lines",
-            line=dict(color=color, width=2.5),
+            line=dict(color=color, width=2.6),
             name=nombre,
             showlegend=False,
             hovertemplate="%{x}: %{y:.1f} °C<extra></extra>",
@@ -116,7 +151,7 @@ def grafico_con_tendencia(anios, valores, color, nombre):
             x=anios,
             y=tendencia,
             mode="lines",
-            line=dict(color=TEXT_MUTED, width=1.5, dash="dot"),
+            line=dict(color=TEXT_MUTED, width=1.7, dash="dot"),
             name=f"Tendencia ({pendiente * 10:+.2f} °C/década)",
             hoverinfo="skip",
         )
@@ -134,207 +169,203 @@ def grafico_con_tendencia(anios, valores, color, nombre):
             hoverinfo="skip",
         )
     )
-    fig.update_layout(
-        title=dict(text=nombre, x=0, font=dict(size=15, family=FONT_SERIF, color=TEXT_PRIMARY)),
-        plot_bgcolor=CARD,
-        paper_bgcolor=CARD,
-        showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1, xanchor="right", x=1,
-                    font=dict(size=10, family=FONT_SANS, color=TEXT_MUTED)),
-        xaxis=dict(showgrid=False, color=TEXT_MUTED, tickfont=dict(family=FONT_SANS, size=10)),
-        yaxis=dict(showgrid=True, gridcolor=BORDER, gridwidth=1, color=TEXT_MUTED,
-                    title="°C", tickfont=dict(family=FONT_SANS, size=10)),
-        margin=dict(t=34, b=10, l=5, r=5),
-        height=ALTURA_GRAFICO,
-        hoverlabel=dict(font=dict(family=FONT_SANS, color=TEXT_PRIMARY), bgcolor=CARD,
-                         bordercolor=BORDER),
+    return aplicar_layout_grafico(fig, nombre, altura)
+
+
+def tarjeta_metrica(icono, icono_bg, icono_fg, etiqueta, valor, detalle, detalle_color):
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-head">
+                <div class="metric-icon" style="background-color:{icono_bg}; color:{icono_fg};">{icono}</div>
+                <div class="metric-label">{etiqueta}</div>
+            </div>
+            <div class="metric-value">{valor}</div>
+            <div class="metric-detail" style="color:{detalle_color};">{detalle}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    return fig
 
 
-st.set_page_config(page_title=f"Clima {CIUDAD}", layout="wide")
+st.set_page_config(page_title=f"¿Clima inestable? · {CIUDAD}", layout="wide")
 
-st.markdown("""
+st.markdown(
+    """
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --nm-light: rgba(255, 248, 235, 0.6);
-            --nm-light-strong: rgba(255, 250, 240, 0.8);
-            --nm-dark: rgba(53, 40, 27, 0.4);
-            --nm-dark-strong: rgba(48, 36, 24, 0.5);
-        }
         .stApp {
-            background-color: #A6907C;
-            background-image: repeating-linear-gradient(105deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 4px);
+            background: #F4F7F8;
+            color: #1F2D35;
             font-family: 'Inter', sans-serif;
         }
         header[data-testid="stHeader"] {
-            background: #A6907C;
-        }
-        header[data-testid="stHeader"] button {
-            background: #A6907C;
-            border: none;
-            border-radius: 10px;
-            box-shadow: -3px -3px 6px var(--nm-light), 3px 3px 7px var(--nm-dark);
-            color: #2C241D;
-            transition: box-shadow .15s ease;
-        }
-        header[data-testid="stHeader"] button:hover {
-            background: #A6907C;
-            box-shadow: inset 3px 3px 6px var(--nm-dark), inset -3px -3px 6px var(--nm-light);
-            color: #2C241D;
-        }
-        header[data-testid="stHeader"] svg {
-            fill: #2C241D;
+            background: rgba(244, 247, 248, 0.92);
+            border-bottom: 1px solid rgba(217, 228, 232, 0.75);
         }
         .block-container {
-            padding-top: 4.6rem;
-            padding-bottom: 1.5rem;
-            max-width: 1400px;
-            min-height: calc(100vh - 4.6rem);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .block-container > div[data-testid="stVerticalBlock"] {
-            flex-grow: 0;
+            padding-top: 3.25rem;
+            padding-bottom: 2rem;
+            padding-left: 3rem;
+            padding-right: 3rem;
+            max-width: 1440px;
         }
         div[data-testid="stVerticalBlock"] {
-            gap: 0.8rem;
+            gap: 1rem;
         }
-
-        /* --- Encabezado sobre el canvas taupe --- */
+        div[data-testid="stHorizontalBlock"] {
+            gap: 1rem;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background: #FFFFFF;
+            border: 1px solid #D9E4E8;
+            border-radius: 8px;
+            box-shadow: 0 10px 26px rgba(31, 45, 53, 0.06);
+            padding: 0.25rem 0.45rem;
+        }
+        .dashboard-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.25rem;
+        }
         .dashboard-eyebrow {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.72rem;
+            font-weight: 700;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            color: #E9CE94;
-            margin-bottom: 0.15rem;
+            color: #2F6F9F;
+            margin-bottom: 0.25rem;
         }
         .dashboard-title {
             font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2rem;
             font-weight: 700;
-            font-size: 1.9rem;
-            line-height: 1.2;
-            color: #F8F2E6;
-            margin: 0 0 0.2rem 0;
+            line-height: 1.12;
+            color: #1F2D35;
+            margin: 0;
         }
         .dashboard-subtitle {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.88rem;
-            color: #DCCDBC;
-            margin-bottom: 1rem;
+            color: #61717A;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            margin-top: 0.4rem;
         }
-
-        /* --- Tarjetas bento genéricas (gráficos) --- */
-        div[data-testid="stVerticalBlockBorderWrapper"] {
-            background: #FAF5E9;
-            border-radius: 22px;
-            border: none;
-            box-shadow:
-                -11px -11px 22px var(--nm-light),
-                11px 11px 26px var(--nm-dark),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            padding: 0.2rem 0.4rem;
+        .dashboard-analysis-link {
+            display: inline-block;
+            margin-top: 0.6rem;
+            color: #2F6F9F;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
         }
-
-        /* --- Tarjetas de métricas (HTML custom) --- */
-        .bento-metric {
-            background: #FAF5E9;
-            border-radius: 22px;
-            box-shadow:
-                -10px -10px 20px var(--nm-light),
-                10px 10px 24px var(--nm-dark),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            padding: 1rem 1.25rem 1.1rem 1.25rem;
+        .dashboard-analysis-link:hover {
+            text-decoration: underline;
         }
-        .bento-metric.featured {
-            box-shadow:
-                -13px -13px 26px var(--nm-light-strong),
-                13px 13px 30px var(--nm-dark-strong),
-                inset 0 1px 0 rgba(255, 255, 255, 0.35),
-                inset 0 0 0 1px rgba(201, 124, 93, 0.3);
+        .dashboard-range {
+            color: #61717A;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: right;
+            white-space: nowrap;
+            padding-bottom: 0.25rem;
         }
-        .bento-metric-head {
+        .metric-card {
+            min-height: 138px;
+            background: #FFFFFF;
+            border: 1px solid #D9E4E8;
+            border-radius: 8px;
+            box-shadow: 0 10px 26px rgba(31, 45, 53, 0.06);
+            padding: 1rem 1.1rem;
+        }
+        .metric-head {
             display: flex;
             align-items: center;
-            gap: 0.55rem;
-            margin-bottom: 0.4rem;
+            gap: 0.65rem;
+            margin-bottom: 0.8rem;
         }
-        .bento-icon-wrap {
-            width: 32px;
-            height: 32px;
-            min-width: 32px;
-            border-radius: 50%;
+        .metric-icon {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 3px);
-            background-blend-mode: soft-light;
-            box-shadow:
-                -3px -3px 6px rgba(255, 255, 255, 0.55),
-                3px 3px 7px rgba(53, 40, 27, 0.3),
-                inset 0 1px 1px rgba(255, 255, 255, 0.45);
         }
-        .bento-icon-wrap svg { width: 16px; height: 16px; }
-        .bento-metric-label {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #2C241D;
-            line-height: 1.2;
+        .metric-icon svg {
+            width: 17px;
+            height: 17px;
         }
-        .bento-metric-value {
-            font-family: 'Inter', sans-serif;
+        .metric-label {
+            color: #61717A;
+            font-size: 0.8rem;
             font-weight: 700;
-            font-size: 1.9rem;
-            color: #2C241D;
-            letter-spacing: -0.01em;
+            line-height: 1.25;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
-        .bento-metric-delta {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.78rem;
-            font-weight: 500;
-            margin-top: 0.2rem;
+        .metric-value {
+            color: #1F2D35;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            line-height: 1.05;
         }
-
-        /* --- Expander de notas --- */
+        .metric-detail {
+            font-size: 0.84rem;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-top: 0.55rem;
+        }
         div[data-testid="stExpander"] {
-            background: #FAF5E9;
-            border-radius: 22px;
-            border: none;
-            box-shadow:
-                -10px -10px 20px var(--nm-light),
-                10px 10px 24px var(--nm-dark),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: #FFFFFF;
+            border: 1px solid #D9E4E8;
+            border-radius: 8px;
+            box-shadow: 0 10px 26px rgba(31, 45, 53, 0.05);
         }
         div[data-testid="stExpander"] summary {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #2C241D !important;
-            min-height: 0;
-            padding: 0.9rem 1.3rem;
-            border-radius: 22px;
-            transition: box-shadow .15s ease;
+            color: #1F2D35 !important;
+            background: transparent !important;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 0.9rem 1.1rem;
         }
-        div[data-testid="stExpander"] summary:hover {
-            box-shadow:
-                inset 4px 4px 8px rgba(53, 40, 27, 0.18),
-                inset -4px -4px 8px rgba(255, 248, 235, 0.5);
+        div[data-testid="stExpander"] summary:hover,
+        div[data-testid="stExpander"] summary:focus,
+        div[data-testid="stExpander"] details[open] summary {
+            color: #1F2D35 !important;
+            background: transparent !important;
         }
-        div[data-testid="stExpander"] * {
-            color: #2C241D;
-        }
-        div[data-testid="stExpander"] p {
+        div[data-testid="stExpanderDetails"] p,
+        div[data-testid="stExpanderDetails"] span {
+            color: #61717A;
             font-family: 'Inter', sans-serif;
-            color: #6B5D4F !important;
+        }
+        @media (max-width: 900px) {
+            .block-container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 2.75rem;
+            }
+            .dashboard-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .dashboard-range {
+                text-align: left;
+                white-space: normal;
+            }
+            .dashboard-title {
+                font-size: 1.65rem;
+            }
         }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
 df = cargar_datos()
 anual = calcular_promedio_anual(df)
@@ -345,134 +376,127 @@ record_max, record_min = calcular_records_historicos(df)
 primera_decada = decadas.iloc[0]
 ultima_decada = decadas.iloc[-1]
 delta_decadas = ultima_decada["temperature_2m_mean"] - primera_decada["temperature_2m_mean"]
+inicio_serie = int(anual["year"].min())
+fin_serie = int(anual["year"].max())
+
+rango_extremo = extremos["temperature_2m_max"] - extremos["temperature_2m_min"]
 
 st.markdown(
     f"""
-    <div class="dashboard-eyebrow">Reporte climático · Chile</div>
-    <div class="dashboard-title">¿Está cambiando el clima en {CIUDAD}?</div>
-    <div class="dashboard-subtitle">Serie histórica 1940–2025 · datos ERA5 vía Open-Meteo</div>
+    <section class="dashboard-header">
+        <div>
+            <div class="dashboard-eyebrow">Análisis de estabilidad climática · Chile</div>
+            <h1 class="dashboard-title">¿Se está volviendo más inestable el clima en {CIUDAD}?</h1>
+            <div class="dashboard-subtitle">El promedio anual se mantiene casi plano — la pregunta es qué pasa con sus extremos. 85 años de temperatura diaria, {inicio_serie}-{fin_serie}.</div>
+            <a class="dashboard-analysis-link" href="app/static/estabilidad_climatica.html" target="_blank">
+                Ver el análisis estadístico completo →
+            </a>
+        </div>
+        <div class="dashboard-range">Serie histórica {inicio_serie}-{fin_serie}<br>Datos ERA5 vía Open-Meteo</div>
+    </section>
     """,
     unsafe_allow_html=True,
 )
 
+color_delta_decada = CORAL if delta_decadas > 0 else GREEN
+col_kpi_1, col_kpi_2, col_kpi_3 = st.columns(3, gap="medium")
 
-def tarjeta_metrica(icono, icono_bg, icono_fg, etiqueta, valor, delta_texto, delta_color, featured=False):
-    clase = "bento-metric featured" if featured else "bento-metric"
-    st.markdown(
-        f"""
-        <div class="{clase}">
-            <div class="bento-metric-head">
-                <div class="bento-icon-wrap" style="background-color:{icono_bg}; color:{icono_fg};">{icono}</div>
-                <div class="bento-metric-label">{etiqueta}</div>
-            </div>
-            <div class="bento-metric-value">{valor}</div>
-            <div class="bento-metric-delta" style="color:{delta_color};">{delta_texto}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-fig_linea = grafico_con_tendencia(
-    anual["year"].to_numpy(),
-    anual["temperature_2m_mean"].to_numpy(),
-    MUSTARD,
-    "Temperatura media anual",
-)
-fig_barras = go.Figure()
-fig_barras.add_trace(
-    go.Bar(
-        x=decadas["label"],
-        y=decadas["temperature_2m_mean"],
-        marker_color=JADE,
-        text=[f"{v:.1f}" for v in decadas["temperature_2m_mean"]],
-        textposition="outside",
-        textfont=dict(family=FONT_SANS, color=TEXT_PRIMARY, size=12),
-        hovertemplate="%{x}: %{y:.1f} °C<extra></extra>",
-        width=0.6,
-    )
-)
-fig_barras.update_layout(
-    title=dict(text="Promedio por década", x=0, font=dict(size=14, family=FONT_SERIF, color=TEXT_PRIMARY)),
-    plot_bgcolor=CARD,
-    paper_bgcolor=CARD,
-    showlegend=False,
-    xaxis=dict(showgrid=False, color=TEXT_PRIMARY, tickfont=dict(family=FONT_SANS, size=11, color=TEXT_PRIMARY)),
-    yaxis=dict(showgrid=True, gridcolor=BORDER, gridwidth=1, color=TEXT_MUTED,
-                title="°C", tickfont=dict(family=FONT_SANS, size=10)),
-    margin=dict(t=34, b=10, l=5, r=5),
-    height=ALTURA_GRAFICO,
-    font=dict(family=FONT_SANS, color=TEXT_PRIMARY),
-    hoverlabel=dict(font=dict(family=FONT_SANS, color=TEXT_PRIMARY), bgcolor=CARD, bordercolor=BORDER),
-)
-fig_max = grafico_con_tendencia(
-    extremos["year"].to_numpy(),
-    extremos["temperature_2m_max"].to_numpy(),
-    TERRACOTTA,
-    "Máxima anual (día más caluroso)",
-)
-fig_min = grafico_con_tendencia(
-    extremos["year"].to_numpy(),
-    extremos["temperature_2m_min"].to_numpy(),
-    JADE,
-    "Mínima anual (día más frío)",
-)
-
-col_metricas, col_graficos = st.columns([1, 2.4], gap="medium")
-
-with col_metricas:
-    color_delta_decada = TERRACOTTA if delta_decadas > 0 else JADE
+with col_kpi_1:
     tarjeta_metrica(
-        ICON_TREND, MUSTARD_BG, "#8A6A2E",
-        f"Temp. media, década {ultima_decada['label']}",
+        ICON_TREND,
+        AMBER_BG,
+        AMBER,
+        f"Media década {ultima_decada['label']}",
         f"{ultima_decada['temperature_2m_mean']:.1f} °C",
         f"{delta_decadas:+.1f} °C vs {primera_decada['label']}",
         color_delta_decada,
     )
+
+with col_kpi_2:
     tarjeta_metrica(
-        ICON_FLAME, TERRACOTTA_BG, "#A85A3C",
+        ICON_FLAME,
+        CORAL_BG,
+        CORAL,
         "Récord de calor histórico",
         f"{record_max['temperature_2m_max']:.1f} °C",
         f"Registrado el {record_max['date'].strftime('%d-%m-%Y')}",
         TEXT_MUTED,
-        featured=True,
     )
+
+with col_kpi_3:
     tarjeta_metrica(
-        ICON_SNOWFLAKE, JADE_BG, "#2F5645",
+        ICON_SNOWFLAKE,
+        BLUE_BG,
+        BLUE,
         "Récord de frío histórico",
         f"{record_min['temperature_2m_min']:.1f} °C",
         f"Registrado el {record_min['date'].strftime('%d-%m-%Y')}",
         TEXT_MUTED,
     )
 
-    with st.expander("Notas y datos"):
-        st.caption(
-            "La variabilidad año a año de la temperatura media también crece con el tiempo (la "
-            "década de 1940 es la más 'plana' de toda la serie). Esto puede ser una señal "
-            "climática real, pero también puede reflejar que el archivo histórico de Open-Meteo "
-            "(basado en ERA5) tenía muchas menos observaciones antes de la era satelital "
-            "(~1979), lo que suaviza artificialmente los años más antiguos."
-        )
-        st.caption("Promedio anual")
-        st.dataframe(anual, width="stretch", height=150)
-        st.caption("Extremos anuales")
-        st.dataframe(extremos, width="stretch", height=150)
-        st.caption("Promedio por década")
-        st.dataframe(decadas.drop(columns="label"), width="stretch", height=150)
+fig_linea = grafico_con_tendencia(
+    anual["year"].to_numpy(),
+    anual["temperature_2m_mean"].to_numpy(),
+    BLUE,
+    "Temperatura media anual",
+    altura=390,
+)
 
-with col_graficos:
-    fila1_izq, fila1_der = st.columns(2, gap="small")
-    with fila1_izq:
-        with st.container(border=True):
-            st.plotly_chart(fig_linea, width="stretch")
-    with fila1_der:
-        with st.container(border=True):
-            st.plotly_chart(fig_barras, width="stretch")
+fig_rango = grafico_con_tendencia(
+    extremos["year"].to_numpy(),
+    rango_extremo.to_numpy(),
+    AMBER,
+    "Amplitud térmica anual (máx - mín)",
+    altura=285,
+)
 
-    fila2_izq, fila2_der = st.columns(2, gap="small")
-    with fila2_izq:
-        with st.container(border=True):
-            st.plotly_chart(fig_max, width="stretch")
-    with fila2_der:
-        with st.container(border=True):
-            st.plotly_chart(fig_min, width="stretch")
+fig_max = grafico_con_tendencia(
+    extremos["year"].to_numpy(),
+    extremos["temperature_2m_max"].to_numpy(),
+    CORAL,
+    "Máxima anual (día más caluroso)",
+    altura=285,
+)
+
+fig_min = grafico_con_tendencia(
+    extremos["year"].to_numpy(),
+    extremos["temperature_2m_min"].to_numpy(),
+    GREEN,
+    "Mínima anual (día más frío)",
+    altura=285,
+)
+
+with st.container(border=True):
+    st.plotly_chart(fig_linea, use_container_width=True)
+
+col_graf_1, col_graf_2, col_graf_3 = st.columns(3, gap="medium")
+
+with col_graf_1:
+    with st.container(border=True):
+        st.plotly_chart(fig_rango, use_container_width=True)
+
+with col_graf_2:
+    with st.container(border=True):
+        st.plotly_chart(fig_max, use_container_width=True)
+
+with col_graf_3:
+    with st.container(border=True):
+        st.plotly_chart(fig_min, use_container_width=True)
+
+with st.expander("Notas y datos"):
+    st.caption(
+        "El promedio anual muestra una tendencia casi plana, pero la amplitud térmica "
+        "(máxima menos mínima de cada año) se ha ido ampliando con el tiempo: la señal de "
+        "inestabilidad aparece en los extremos, no en el promedio. Esto puede ser una tendencia "
+        "climática real, pero también puede reflejar que el archivo histórico de Open-Meteo, "
+        "basado en ERA5, tenía muchas menos observaciones antes de la era satelital "
+        "(alrededor de 1979), lo que suaviza artificialmente los años más antiguos. El análisis "
+        "estadístico completo — metodología, cifras y limitaciones — está en "
+        "`analysis/estabilidad_climatica.ipynb`."
+    )
+    st.caption("Promedio anual")
+    st.dataframe(anual, use_container_width=True, height=150)
+    st.caption("Extremos anuales")
+    st.dataframe(extremos, use_container_width=True, height=150)
+    st.caption("Promedio por década")
+    st.dataframe(decadas.drop(columns="label"), use_container_width=True, height=150)

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1080px; }
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #F4F7F8;
+    color: #1F2D35;
+}
+.card {
+    width: 1080px;
+    height: 1080px;
+    background: #F4F7F8;
+    padding: 76px 84px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.eyebrow {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.footer {
+    position: absolute;
+    left: 84px;
+    right: 84px;
+    bottom: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    color: #61717A;
+    font-weight: 600;
+    border-top: 1px solid #D9E4E8;
+    padding-top: 22px;
+}
+.icon-wrap {
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-wrap svg { display: block; }
+
+
+.icon-wrap.c1 { width: 96px; height: 96px; background: #E2EEF7; color: #2F6F9F; margin-bottom: 44px; }
+.hero-1 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 168px; color: #2F6F9F; line-height: 1; letter-spacing: -0.02em; }
+.hero-1-unit { font-size: 42px; font-weight: 700; color: #1F2D35; margin-left: 10px; }
+.sub-1 { font-size: 26px; color: #61717A; font-weight: 600; margin-top: 10px; }
+.spark-1 { margin-top: 56px; }
+.title-1 { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 44px; line-height: 1.25; margin-top: 56px; max-width: 820px; }
+.body-1 { font-size: 26px; color: #61717A; line-height: 1.55; margin-top: 20px; max-width: 760px; }
+
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="eyebrow" style="color:#2F6F9F;">1 &middot; EL PROMEDIO</div>
+    <div class="icon-wrap c1"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13.5V5.5a2 2 0 1 0-4 0v8a4 4 0 1 0 4 0z"></path><line x1="10" y1="7" x2="10" y2="12.5"></line></svg></div>
+    <div style="display:flex; align-items:baseline;">
+        <div class="hero-1">+0,05</div>
+        <div class="hero-1-unit">°C / d&eacute;cada</div>
+    </div>
+    <div class="sub-1">tendencia del promedio anual, 1940&ndash;2025</div>
+
+    <svg class="spark-1" width="900" height="120" viewBox="0 0 900 120">
+        <polyline points="0,66 90,72 180,60 270,70 360,58 450,64 540,54 630,60 720,50 810,56 900,44"
+            fill="none" stroke="#2F6F9F" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+        <line x1="0" y1="70" x2="900" y2="46" stroke="#D9E4E8" stroke-width="3" stroke-dasharray="2 10" />
+    </svg>
+
+    <div class="title-1">En 85 a&ntilde;os, la temperatura promedio de Puerto Montt casi no se movi&oacute;.</div>
+    <div class="body-1">Si solo miras el promedio anual, la conclusi&oacute;n es que &ldquo;no pasa nada&rdquo;. La pregunta interesante est&aacute; en otro lado.</div>
+    <div class="footer">
+        <span>PUERTO MONTT &middot; 1940&ndash;2025 &middot; ERA5 (Open-Meteo)</span>
+        <span>1 / 6</span>
+    </div>
+</div>
+
+</body>
+</html>
